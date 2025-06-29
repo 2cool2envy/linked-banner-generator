@@ -1,0 +1,29 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 2rem;
+  }
+  
+  .tile {
+    height: 150px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .tile:hover {
+    transform: scale(1.03);
+  }
+  
+  .label {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 0.9rem;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+  }
+  

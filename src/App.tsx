@@ -1,46 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import './App.css';
+// App.tsx
+import React, { useRef, useState } from 'react';
+import styles from './App.module.css';
 import { bgColors, textColors } from './assets/colorCodes';
 import html2canvas from 'html2canvas';
+import CommonModal from './CommonModal';
+import BannerView from './BannerView/BannerView';
+import { useBanner } from './BannerContext';
+import AdvancedEditing from './AdvancedEditing/AdvancedEditing';
 
-
-interface IStyles {
-  [key: string]: React.CSSProperties;
-}
-
-const styles: IStyles = {
-  container: {
-    display: 'flex',
-    width: '100%',
-    alignItems: 'stretch',
-  },
-  box: {
-    flex: 1,
-    padding: '2%',
-    boxSizing: 'border-box',
-  },
-  colorCircle: {
-    width: '37px',
-    height: '37px',
-    display: 'inline-block',
-    border: '2px solid black',
-    margin: '0.2% 2%',
-    borderRadius: '50%',
-    cursor: 'pointer',
-  },
-  headingCenter: {
-    textAlign: 'center',
-    margin: '2% auto',
-  },
-};
-
-// Define the shape of a color object
 interface Color {
   name: string;
   code: string;
 }
 
-// Define the prop types for the ColorPicker component
 interface ColorPickerProps {
   title: string;
   colors: Color[];
@@ -59,8 +31,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     {colors.map((color) => (
       <div
         key={color.name}
-        className={selectedColor === color.name ? 'selected' : ''}
-        style={{ ...styles.colorCircle, background: color.code }}
+        className={`${styles.colorCircle} ${selectedColor === color.name ? styles.selected : ''}`}
+        style={{ background: color.code }}
         onClick={() => onColorSelect(color.code)}
         aria-label={`Select ${color.name}`}
       ></div>
@@ -69,15 +41,19 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 );
 
 const App: React.FC = () => {
-  const [heading, setHeading] = useState<string>('Senior product manager');
-  const [subHeading, setSubHeading] = useState<string>('8+ years of experience in audit, taxation, and financial strategy');
-  const [bgColor, setBGColor] = useState<string>('#1E90FF');
-  const [textColor, setTextColor] = useState<string>('#fff');
-  const bannerRef = useRef<HTMLDivElement>(null);
+  const bannerRef = useRef<HTMLDivElement | any>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    console.log('bgColor update', bgColor)
-  }, [bgColor])
+  const {
+    bgColor,
+    textColor,
+    heading,
+    subHeading,
+    setBgColor,
+    setTextColor,
+    setHeading,
+    setSubHeading,
+  } = useBanner();
 
   const downloadBanner = async () => {
     if (bannerRef.current) {
@@ -91,9 +67,9 @@ const App: React.FC = () => {
 
   return (
     <div className="pure-form">
-      <h3 style={styles.headingCenter}>LinkedIn Banner Generator</h3>
-      <div style={styles.container}>
-        <div style={styles.box}>
+      <h3 className={styles.headingCenter}>LinkedIn Banner Generator</h3>
+      <div className={styles.container}>
+        <div className={styles.box}>
           <h4>Heading</h4>
           <input
             type="text"
@@ -109,12 +85,12 @@ const App: React.FC = () => {
             onChange={(e) => setSubHeading(e.target.value)}
           />
         </div>
-        <div style={styles.box}>
+        <div className={styles.box}>
           <ColorPicker
             title="Choose background color:"
             colors={bgColors}
             selectedColor={bgColor}
-            onColorSelect={setBGColor}
+            onColorSelect={setBgColor}
           />
           <ColorPicker
             title="Choose text color:"
@@ -125,39 +101,37 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="button-container">
-        <button onClick={downloadBanner} style={{ marginTop: '2rem' }}>
+      <CommonModal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
+        <AdvancedEditing />
+        <button onClick={() => setModalOpen(false)}>Close</button>
+      </CommonModal>
+
+      <div className={styles.buttonContainer}>
+        <button onClick={downloadBanner} className={styles.button}>
           Download Banner
-        </button></div>
-
-
-      <div style={styles.box}>
-
-
-        <div style={{ flex: 2, display: 'flex', justifyContent: 'center', alignItems: 'start', padding: '2rem' }}>
-          <div
-            ref={bannerRef}
-            style={{
-              width: '1400px',
-              height: '350px',
-              backgroundColor: bgColor,
-              color: textColor,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-            }}
-          >
-            <h1 style={{ margin: 0, textAlign: 'right', padding: '2%', paddingBottom: '0.5%' }}>{heading}</h1>
-            <h2 style={{ marginTop: '0.5rem', textAlign: 'right', padding: '0.1% 2%' }}>{subHeading}</h2>
-          </div>
-        </div>
-
+        </button>
+        <button onClick={() => setModalOpen(true)} className={styles.button}>
+          More awesome background colors
+        </button>
       </div>
 
-
-
-
+      <div className={styles.box}>
+        <BannerView bannerRef={bannerRef} bgColor={bgColor} textColor={textColor}
+          heading={heading} subHeading={subHeading}
+        />
+        {/* <div className={styles.bannerWrapper}>
+          <div
+            ref={bannerRef}
+            className={styles.banner}
+            style={{ backgroundColor: bgColor, color: textColor }}
+          >
+            <h1 className={styles.bannerHeading}>{heading}</h1>
+            <h2 className={styles.bannerSubheading}>{subHeading}</h2>
+          </div>
+        </div> */}
+      </div>
     </div>
+
   );
 };
 
